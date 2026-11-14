@@ -188,6 +188,8 @@ pub struct Settings {
     pub sponsorblock_mode: String, // "off" | "remove" | "mark"
     pub sponsorblock_categories: Vec<String>,
     pub embed_thumbnail: bool,
+    /// Centre-crop the embedded cover to a square (audio downloads).
+    pub square_thumbnail: bool,
     pub embed_metadata: bool,
     /// Use joint stereo when encoding constant-bitrate MP3 (better quality
     /// per bit; off encodes plain stereo channels independently).
@@ -261,6 +263,7 @@ impl Default for Settings {
             sponsorblock_mode: "off".into(),
             sponsorblock_categories: vec!["sponsor".into()],
             embed_thumbnail: true,
+            square_thumbnail: true,
             embed_metadata: true,
             joint_stereo: true,
             audio_sample_rate: "48000".into(),

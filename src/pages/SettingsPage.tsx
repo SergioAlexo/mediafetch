@@ -415,6 +415,13 @@ export function SettingsPage() {
               onCheckedChange={(v) => set({ embedThumbnail: v })}
             />
           </Row>
+          <Row label={t("set.squareThumb")} hint={t("set.squareThumbHint")}>
+            <Switch
+              checked={settings.squareThumbnail}
+              onCheckedChange={(v) => set({ squareThumbnail: v })}
+              disabled={!settings.embedThumbnail}
+            />
+          </Row>
           <Row label={t("set.embedMeta")} hint={t("set.embedMetaHint")}>
             <Switch
               checked={settings.embedMetadata}

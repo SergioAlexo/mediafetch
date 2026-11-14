@@ -160,6 +160,8 @@ export interface Settings {
   sponsorblockMode: "off" | "remove" | "mark";
   sponsorblockCategories: string[];
   embedThumbnail: boolean;
+  /** Centre-crop the embedded cover to a square (audio downloads). */
+  squareThumbnail: boolean;
   embedMetadata: boolean;
   /** Use joint stereo when encoding constant-bitrate MP3. */
   jointStereo: boolean;
