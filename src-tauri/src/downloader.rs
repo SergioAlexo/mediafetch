@@ -659,13 +659,20 @@ pub fn build_args(
         // letterboxed rectangle. Convert to JPEG and centre-crop to a square
         // (YouTube Music's art sits in the middle of the frame). `crop=ih:ih`
         // rather than min(iw,ih): yt-dlp shlex-splits the value, so a comma
-        // would be read by ffmpeg as a filter separator.
+        // would be read by ffmpeg as a filter separator. The crop uses
+        // min(iw,ih) inside ffmpeg quotes (kept through yt-dlp's shlex split)
+        // so portrait art is squared too; `crop=ih:ih` errored on it.
+        //
+        // yt-dlp skips a thumbnail already in the target format, which left
+        // jpg sources (SoundCloud, Bandcamp, some YouTube) un-cropped. So a
+        // jpg source is forced through png, and a png back to jpg; everything
+        // else (webp, ...) goes to jpg.
         if is_audio && settings.square_thumbnail {
             args.extend([
                 "--convert-thumbnails".into(),
-                "jpg".into(),
+                "jpg>png/png>jpg/jpg".into(),
                 "--ppa".into(),
-                "ThumbnailsConvertor+FFmpeg_o:-vf crop=ih:ih".into(),
+                "ThumbnailsConvertor+FFmpeg_o:-vf \"crop='min(iw,ih)':'min(iw,ih)'\"".into(),
             ]);
         }
     }
