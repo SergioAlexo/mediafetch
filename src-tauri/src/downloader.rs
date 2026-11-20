@@ -493,6 +493,8 @@ pub fn pump(app: &AppHandle) {
 pub struct RetryTweaks {
     /// Download without concurrent fragments (`-N`).
     pub single_connection: bool,
+    /// "Download anyway": skip the download archive and overwrite existing files.
+    pub redownload: bool,
 }
 
 /// `--cookies <file>` or `--cookies-from-browser <name>` — spelled the same in
@@ -631,7 +633,11 @@ pub fn build_args(
         .then(|| app.path().app_data_dir().ok())
         .flatten()
         .map(|dir| dir.join("download-archive.txt").to_string_lossy().into_owned());
-    args.extend(archive_args(opts, global_archive));
+    if tweaks.redownload {
+        args.push("--force-overwrites".into());
+    } else {
+        args.extend(archive_args(opts, global_archive));
+    }
 
     // SponsorBlock
     if settings.sponsorblock_mode != "off" && !settings.sponsorblock_categories.is_empty() {
@@ -1080,6 +1086,7 @@ async fn run_download(app: AppHandle, mut task: DownloadTask) {
     };
     let tweaks = RetryTweaks {
         single_connection: task.force_single_connection,
+        redownload: task.force_redownload,
     };
     // Off the async runtime: building the arguments touches the disk, and the
     // first build after a yt-dlp install runs `yt-dlp --help` once to see
@@ -1345,6 +1352,7 @@ async fn run_download(app: AppHandle, mut task: DownloadTask) {
         // Nothing new was produced, but nothing failed either — don't add a
         // second history entry for a track already in the archive.
         with_own_task(&app, &task, |t| {
+            t.already_had = true;
             t.status = TaskStatus::Completed;
             t.progress = 100.0;
             t.speed = 0.0;

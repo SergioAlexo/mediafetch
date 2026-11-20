@@ -4,6 +4,7 @@ import {
   ArrowUp,
   Bug,
   Copy,
+  Download,
   ExternalLink,
   FolderOpen,
   Music,
@@ -182,6 +183,11 @@ export const QueueItem = memo(function QueueItem({
                 <Badge variant={statusBadgeVariant(task.status)} className="px-1.5 py-0">
                   {t(STATUS_LABEL[task.status])}
                 </Badge>
+                {task.status === "completed" && task.alreadyHad && (
+                  <Badge variant="outline" className="px-1.5 py-0">
+                    {t("q.alreadyHad")}
+                  </Badge>
+                )}
                 {task.options.formatNote && <span>{task.options.formatNote}</span>}
                 {task.options.kind === "audio" && task.options.audioFormat && (
                   <span className="uppercase">{task.options.audioFormat}</span>
@@ -226,6 +232,17 @@ export const QueueItem = memo(function QueueItem({
                 <IconButton tip={t("q.retry")} onClick={() => api.retryTask(task.id)}>
                   <RotateCcw className="h-3.5 w-3.5" />
                 </IconButton>
+              )}
+              {task.status === "completed" && task.alreadyHad && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 px-2 text-xs"
+                  onClick={() => api.retryTask(task.id, true)}
+                >
+                  <Download className="mr-1 h-3.5 w-3.5" />
+                  {t("q.downloadAnyway")}
+                </Button>
               )}
               {task.status === "failed" && (
                 <IconButton

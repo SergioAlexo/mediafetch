@@ -200,6 +200,8 @@ fn enqueue(app: AppHandle, state: State<AppState>, items: Vec<DownloadOptions>) 
                 playlist_count: None,
                 retry_count: 0,
                 force_single_connection: false,
+                already_had: false,
+                force_redownload: false,
                 media_key: None,
                 run: 0,
                 options: opts,
@@ -322,11 +324,16 @@ fn cancel_all_tasks(app: AppHandle, state: State<AppState>) {
 }
 
 #[tauri::command]
-fn retry_task(app: AppHandle, state: State<AppState>, id: String) {
+fn retry_task(app: AppHandle, state: State<AppState>, id: String, force: Option<bool>) {
+    let force = force.unwrap_or(false);
     {
         let mut q = state.queue.lock().unwrap();
         if let Some(t) = q.iter_mut().find(|t| t.id == id) {
-            if matches!(t.status, TaskStatus::Failed | TaskStatus::Cancelled) {
+            // "Download anyway" re-runs a song the archive skipped.
+            let redownload = force && t.status == TaskStatus::Completed && t.already_had;
+            if redownload || matches!(t.status, TaskStatus::Failed | TaskStatus::Cancelled) {
+                t.already_had = false;
+                t.force_redownload = redownload;
                 t.status = TaskStatus::Queued;
                 t.progress = 0.0;
                 t.downloaded_bytes = 0;

@@ -134,6 +134,14 @@ pub struct DownloadTask {
     /// fragment threads each) are a likely trigger.
     #[serde(default)]
     pub force_single_connection: bool,
+    /// The last run finished without producing anything because yt-dlp
+    /// found the song in the download archive or already on disk.
+    #[serde(default)]
+    pub already_had: bool,
+    /// Set by "Download anyway": ignore the download archive and overwrite
+    /// any file already on disk for this run.
+    #[serde(default)]
+    pub force_redownload: bool,
     /// Canonical `"<extractor_key>:<id>"`, captured from yt-dlp's own
     /// `after_move` print once the run finishes (see MFDONE in downloader.rs).
     #[serde(default)]
